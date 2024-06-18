@@ -1,7 +1,7 @@
 import argparse
 from visualization import Visuals
 
-from sauber.sarsa import SarsaEnvironment
+from sarsa import SarsaEnvironment
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Trainiere einen Agenten mit Sarsa in einer simulierten Umgebung.')
