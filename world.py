@@ -2,6 +2,9 @@ import argparse
 from visualization import Visuals
 
 from sarsa import SarsaEnvironment
+from qlearning import QLearningEnvironment
+
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Trainiere einen Agenten mit Sarsa in einer simulierten Umgebung.')
@@ -22,15 +25,22 @@ if __name__ == "__main__":
     reward_step = args.reward_step
     gamma = args.gamma
 
-    env = SarsaEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma)
+    # Sarsa oder Q-Lernen
+    sarsa_env = SarsaEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma)
+    q_env = QLearningEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma)
+
     max_iterations = args.max_iterations
 
-    rewards_per_episode = env.sarsa(max_iterations)
+    rewards_per_episode0 = sarsa_env.sarsa(max_iterations)
+    rewards_per_episode1 = q_env.q_learning(max_iterations)
 
     # Erzeugen einer Visuals-Instanz
     visuals = Visuals(max_iterations)
 
     # Aufrufen der Visualisierungsmethoden
-    visuals.print_q_table(env)
-    visuals.print_optimal_policy(env)
-    visuals.plot_learning_curve(env)
+    visuals.print_sarsa(sarsa_env, rewards_per_episode0)
+
+    print('---------------------------------------------------')
+
+    visuals.print_sarsa(q_env, rewards_per_episode1)
+
