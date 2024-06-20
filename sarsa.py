@@ -28,6 +28,7 @@ class SarsaEnvironment:
             best_actions = [action for action, q in zip(self.actions, q_values) if q == max_value]
             return min(best_actions)
 
+    # Simulationsfunktion für die Umgebung basierend auf dem neuen Grundriss
     def get_next_state_and_reward(self, current_state, action):
         # Definiere die Transition basierend auf dem jetzigen Zustand und Aktion
         transitions = {
@@ -49,10 +50,11 @@ class SarsaEnvironment:
         return next_state, reward
 
     # Implementierung des Sarsa-Algorithmus
-    def sarsa(self, max_iterations, convergence_threshold=0.00000001):
+    def sarsa(self, max_iterations, convergence_threshold=0.0001, min_episodes=100):
         rewards_per_episode = []
         iteration = 0
         converged = False
+        prev_Q = np.copy(self.Q)
         while not converged and iteration < max_iterations:
             iteration += 1
             current_state = random.choice(range(self.num_rooms - 1))
@@ -66,7 +68,6 @@ class SarsaEnvironment:
                 next_action_index = self.action_indices[next_action]
 
                 # Q-Wert Berechnung
-                predict = self.Q[current_state, action_index]
                 target = reward + self.gamma * self.Q[next_state, next_action_index]
 
                 # Anzahl der Aktualisierungen erhöhen
@@ -83,104 +84,15 @@ class SarsaEnvironment:
 
             rewards_per_episode.append(total_reward)
 
-            # Check for convergence
-            if iteration > 1:
+            # Ist es konvergiert?
+            if iteration % 10 == 0:  # Konvergenzprüfung nur alle 10 Iterationen
                 q_diff = np.mean(np.abs(self.Q - prev_Q))
-                if q_diff < convergence_threshold:
+                max_diff = np.max(np.abs(self.Q - prev_Q))
+
+                if q_diff < convergence_threshold and max_diff < convergence_threshold and iteration > min_episodes:
                     converged = True
+
             prev_Q = np.copy(self.Q)
 
         return rewards_per_episode
-
-
-
-def main():
-    parser = argparse.ArgumentParser(description='Trainiere einen Agenten mit Sarsa in einer simulierten Umgebung.')
-    parser.add_argument('--gamma', type=float, default=0.9, help='Diskontierungsfaktor für zukünftige Belohnungen.')
-    parser.add_argument('--max_iterations', type=int, default=1000, help='Anzahl der Episoden für das Sarsa.')
-    parser.add_argument('--rooms', type=str, default=['A', 'B', 'C', 'D', 'E', 'F', 'G'], help='Räume.')
-    parser.add_argument('--actions', type=str, default=['left', 'right', 'up', 'down'], help='Aktionen.')
-    parser.add_argument('--transition_prob', type=float, default=0.9, help='Übergangswahrscheinlichkeit.')
-    parser.add_argument('--stay_prob', type=float, default=0.1, help='Wahrscheinlichkeit im aktuellen Raum zu bleiben.')
-    parser.add_argument('--reward_step', type=int, default=-1, help='Kosten für eine Bewegung.')
-
-    args = parser.parse_args()
-
-    rooms = args.rooms
-    actions = args.actions
-    transition_prob = args.transition_prob
-    stay_prob = args.stay_prob
-    reward_step = args.reward_step
-    gamma = args.gamma
-
-    env = SarsaEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma)
-    max_iterations = args.max_iterations
-
-    rewards_per_episode = env.sarsa(max_iterations)
-
-    # Ergebnisse anzeigen
-    print("Q-Tabelle nach Sarsa:")
-    print(env.Q)
-
-    # Optimale Politik anzeigen
-    optimal_policy = {env.rooms[i]: env.actions[np.argmax(env.Q[i])] for i in range(env.num_rooms)}
-
-    print("Optimale Politik:")
-    print(optimal_policy)
-
-    # Lernkurve anzeigen
-    plt.figure(figsize=(10, 6))
-    plt.plot(rewards_per_episode)
-    plt.xlabel('Episode')
-    plt.ylabel('Gesamte Kosten')
-    plt.title('Lernkurve des Sarsa-Algorithmus')
-    plt.grid(True)
-    plt.show()
-
-    fig, ax = plt.subplots(figsize=(12, 6))
-    ax.set_xlim(-0.5, 3.5)
-    ax.set_ylim(-0.5, 1.5)
-    ax.invert_yaxis()
-
-    # Neue Raumpositionen als Dictionary (alle auf einer Achse)
-    positions = {
-        'A': (0, 1), 'B': (0, 0), 'C': (1, 1), 'D': (1, 0), 'E': (2, 1), 'F': (2, 0), 'G': (3, 1)
-    }
-
-    # Zeichne Rechtecke und Aktionen
-    for room, pos in positions.items():
-        # Zeichne das Rechteck für den Raum
-        rect = plt.Rectangle((pos[0] - 0.5, pos[1] - 0.25), 1, 0.5, edgecolor='black', facecolor='lightgrey', lw=2)
-        ax.add_patch(rect)
-
-        # Hole die beste Aktion für den Raum
-        action = optimal_policy[room]
-
-        # Zeichne den Raumname in die Mitte der linken Hälfte des Rechtecks
-        ax.text(pos[0] - 0.25, pos[1], f"{room}",
-                ha='center', va='center', fontsize=12, weight='bold')
-
-        # Zeichne den Pfeil in die Mitte der rechten Hälfte des Rechtecks
-        arrow_length = 0.15
-        arrow_offset = 0.25  # Offset für den Pfeil, damit er in der rechten Hälfte liegt
-
-        if action == 'left':
-            ax.arrow(pos[0] + arrow_offset, pos[1], -arrow_length, 0, head_width=0.05, head_length=0.05, fc='k', ec='k')
-        elif action == 'right':
-            ax.arrow(pos[0] + arrow_offset, pos[1], arrow_length, 0, head_width=0.05, head_length=0.05, fc='k', ec='k')
-        elif action == 'up':
-            ax.arrow(pos[0] + arrow_offset, pos[1], 0, -arrow_length, head_width=0.05, head_length=0.05, fc='k', ec='k')
-        elif action == 'down':
-            ax.arrow(pos[0] + arrow_offset, pos[1], 0, arrow_length, head_width=0.05, head_length=0.05, fc='k', ec='k')
-
-    # Setze die Achsen-Ticks und -Labels aus
-    ax.set_xticks(np.arange(4))
-    ax.set_yticks(np.arange(2))
-    ax.set_xticklabels([])
-    ax.set_yticklabels([])
-
-    plt.title('Optimale Politik')
-    plt.show()
-
-if __name__ == "__main__":
-    main()
+    
