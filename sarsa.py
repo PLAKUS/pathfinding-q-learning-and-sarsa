@@ -37,7 +37,7 @@ class SarsaEnvironment:
             'C': {'left': 'A', 'right': 'E', 'up': 'D', 'down': 'C'},
             'D': {'left': 'B', 'right': 'F', 'up': 'D', 'down': 'C'},
             'E': {'left': 'C', 'right': 'G', 'up': 'F', 'down': 'E'},
-            'F': {'left': 'D', 'right': 'F', 'up': 'F', 'down': 'E'},
+            'F': {'left': 'D', 'right': 'F', 'up': 'F', 'down': 'F'},
             'G': {'left': 'G', 'right': 'G', 'up': 'G', 'down': 'G'}
         }
         # Bewegung mit Wahrscheinlichkeit 0.9
@@ -95,4 +95,27 @@ class SarsaEnvironment:
             prev_Q = np.copy(self.Q)
 
         return rewards_per_episode
-    
+
+    # Funktion, um Erwartungswert für die Kosten des kürzesten Pfades von start_state nach goal_state
+    def simulate_path_costs(self, start_state, goal_state, num_simulations=1000):
+        costs = []
+
+        for _ in range(num_simulations):
+            current_state = start_state
+            total_cost = 0
+            while current_state != goal_state:
+                action_index = np.argmax(self.Q[current_state])  # Best action
+                action = self.actions[action_index]
+                next_state, reward = self.get_next_state_and_reward(current_state, action)
+                total_cost += reward
+                current_state = next_state
+
+                # Sicherheitsabfrage, um eine Endlosschleife zu vermeiden
+                if total_cost < -1000:  # anpassen, um zu lange Pfade zu vermeiden
+                    break
+
+            costs.append(total_cost)
+
+        expected_cost = np.mean(costs)
+        return expected_cost, costs
+
