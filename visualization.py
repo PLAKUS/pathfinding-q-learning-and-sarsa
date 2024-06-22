@@ -23,7 +23,7 @@ class Visuals:
         plt.plot(rewards_per_episode)
         plt.xlabel('Episode')
         plt.ylabel('Gesamte Kosten')
-        plt.title('Lernkurve des Q-Lernen-Algorithmus')
+        plt.title('Aufgabe (c): Lernkurve des Q-Lernen-Algorithmus')
         plt.grid(True)
         plt.show()
 
@@ -94,7 +94,7 @@ class Visuals:
         plt.plot(rewards_per_episode)
         plt.xlabel('Episode')
         plt.ylabel('Gesamte Kosten')
-        plt.title('Lernkurve des Sarsa-Algorithmus')
+        plt.title('Aufgabe (f): Lernkurve des Sarsa-Algorithmus')
         plt.grid(True)
         plt.show()
 
