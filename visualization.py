@@ -29,12 +29,12 @@ class Visuals:
 
         fig, ax = plt.subplots(figsize=(12, 6))
         ax.set_xlim(-0.5, 3.5)
-        ax.set_ylim(-0.5, 1.5)
+        ax.set_ylim(1.5, 2.75)
         ax.invert_yaxis()
 
-        # Neue Raumpositionen als Dictionary (alle auf einer Achse)
+        # Raumpositionen als Dictionary
         positions = {
-            'A': (0, 1), 'B': (0, 0), 'C': (1, 1), 'D': (1, 0), 'E': (2, 1), 'F': (2, 0), 'G': (3, 1)
+            'A': (0, 1.5), 'B': (0, 1), 'C': (1, 1.5), 'D': (1, 1), 'E': (2, 1.5), 'F': (2, 1), 'G': (3, 1.5)
         }
 
         # Zeichne Rechtecke und Aktionen
@@ -100,12 +100,12 @@ class Visuals:
 
         fig, ax = plt.subplots(figsize=(12, 6))
         ax.set_xlim(-0.5, 3.5)
-        ax.set_ylim(-0.5, 1.5)
+        ax.set_ylim(1.5, 2.75)
         ax.invert_yaxis()
 
-        # Neue Raumpositionen als Dictionary (alle auf einer Achse)
+        # Raumpositionen als Dictionary
         positions = {
-            'A': (0, 1), 'B': (0, 0), 'C': (1, 1), 'D': (1, 0), 'E': (2, 1), 'F': (2, 0), 'G': (3, 1)
+            'A': (0, 1.5), 'B': (0, 1), 'C': (1, 1.5), 'D': (1, 1), 'E': (2, 1.5), 'F': (2, 1), 'G': (3, 1.5)
         }
 
         # Zeichne Rechtecke und Aktionen
