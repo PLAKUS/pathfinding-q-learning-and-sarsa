@@ -25,13 +25,14 @@ if __name__ == "__main__":
 
     # Initialisiere Umgebungen
     sarsa_env = SarsaEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma)
+    q_env_rand = QLearningEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma)
     q_env = QLearningEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma)
 
     max_iterations = args.max_iterations
 
     # Trainiere den Agenten
     rewards_per_episode_sarsa = sarsa_env.sarsa(max_iterations)
-    rewards_per_episode_qrandom = q_env.q_learning(max_iterations, True)
+    rewards_per_episode_qrandom = q_env_rand.q_learning(max_iterations, True)
     rewards_per_episode_q = q_env.q_learning(max_iterations, False)
 
     # Berechne die Kosten des kürzesten Pfades von A nach G
