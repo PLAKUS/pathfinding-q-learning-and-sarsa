@@ -1,7 +1,6 @@
 import numpy as np
 import random
-import matplotlib.pyplot as plt
-import argparse
+
 
 class SarsaEnvironment:
     def __init__(self, rooms, actions, transition_prob, stay_prob, reward_step, gamma):
@@ -50,21 +49,17 @@ class SarsaEnvironment:
         return next_state, reward
 
     # Implementierung des Sarsa-Algorithmus
-    def sarsa(self, max_iterations, convergence_threshold=0.0001, min_episodes=100):
+    def sarsa(self, num_iterations):
         rewards_per_episode = []
-        iteration = 0
-        converged = False
-        prev_Q = np.copy(self.Q)
-        while not converged and iteration < max_iterations:
-            iteration += 1
+        for x in range(1, num_iterations + 1):
             current_state = random.choice(range(self.num_rooms - 1))
-            action = self.choose_action(current_state, iteration)
+            action = self.choose_action(current_state, x)
             total_reward = 0
 
             while current_state != self.room_indices['G']:
                 action_index = self.action_indices[action]
                 next_state, reward = self.get_next_state_and_reward(current_state, action)
-                next_action = self.choose_action(next_state, iteration)
+                next_action = self.choose_action(next_state, x)
                 next_action_index = self.action_indices[next_action]
 
                 # Q-Wert Berechnung
@@ -83,16 +78,6 @@ class SarsaEnvironment:
                 total_reward += reward
 
             rewards_per_episode.append(total_reward)
-
-            # Ist es konvergiert?
-            if iteration % 10 == 0:  # Konvergenzprüfung nur alle 10 Iterationen
-                q_diff = np.mean(np.abs(self.Q - prev_Q))
-                max_diff = np.max(np.abs(self.Q - prev_Q))
-
-                if q_diff < convergence_threshold and max_diff < convergence_threshold and iteration > min_episodes:
-                    converged = True
-
-            prev_Q = np.copy(self.Q)
 
         return rewards_per_episode
 
@@ -118,4 +103,3 @@ class SarsaEnvironment:
 
         expected_cost = np.mean(costs)
         return expected_cost, costs
-
