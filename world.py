@@ -32,40 +32,36 @@ if __name__ == "__main__":
     max_iterations = args.max_iterations
 
     # Trainiere den Agenten
-#   rewards_per_episode_sarsa = sarsa_env.sarsa(max_iterations)
-#    rewards_per_episode_qrandom = q_env_rand.q_learning(max_iterations, True)
     rewards_per_episode_q = q_env.q_learning(max_iterations, False)
     rewards_per_episode_sarsa = sarsa_env.sarsa(max_iterations)
 
-    # Berechne die Kosten des kürzesten Pfades von A nach G
-    #start_state = sarsa_env.room_indices['A']
-    #goal_state = sarsa_env.room_indices['G']
 
     # Erzeugen einer Visuals-Instanz
-    visuals = Visuals(len(rewards_per_episode_q))
+    visuals_q = Visuals(len(rewards_per_episode_q))
+    visuals_sarsa = Visuals(len(rewards_per_episode_sarsa))
 
-    visuals.calc_expected_cost_q(q_env)
+    visuals_q.calc_expected_cost_q(q_env)
 
     # Aufrufen der Visualisierungsmethoden
     print("Projektvorschlag 10:")
 
     #Aufgabe (a):
-    visuals.print_a(q_env, rewards_per_episode_q)
+    visuals_q.print_a(q_env, rewards_per_episode_q)
 
     print('---------------------------------------------------')
 
     #Aufgabe (b):
-    visuals.print_b(q_env, rewards_per_episode_q)
+    visuals_q.print_b(q_env, rewards_per_episode_q)
 
     print('---------------------------------------------------')
 
     #Aufgabe (c):
-    visuals.print_c(q_env, rewards_per_episode_q)
+    visuals_q.print_c(q_env, rewards_per_episode_q)
 
     print('---------------------------------------------------')
 
     #Aufgabe (d):
-    visuals.print_d(q_env, rewards_per_episode_q)
+    visuals_q.print_d(q_env, rewards_per_episode_q)
 
     print('---------------------------------------------------')
 
@@ -77,37 +73,11 @@ if __name__ == "__main__":
     q_env_05 = QLearningEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma=0.5) 
     rewards_per_episode_q05 = q_env_05.q_learning(max_iterations, False)
 
-    visuals.print_e(q_env, q_env_01, q_env_05, rewards_per_episode_q, rewards_per_episode_q01, rewards_per_episode_q05)
+    visuals_q.print_e(q_env, q_env_01, q_env_05, rewards_per_episode_q, rewards_per_episode_q01, rewards_per_episode_q05)
 
     print('---------------------------------------------------')
 
     #Aufgabe (f):
-    visuals.print_f(sarsa_env, rewards_per_episode_sarsa)
+    visuals_sarsa.print_f(sarsa_env, rewards_per_episode_sarsa)
 
     print('---------------------------------------------------')
-#
-#    print("Aufgabe (e): Diskontierungsfaktor auf 0.1")
-#    q_env = QLearningEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma=0.1)
-#    rewards_per_episode_qrandom = q_env.q_learning(max_iterations, True)
-#    visuals.print_q(q_env, rewards_per_episode_qrandom)
-#
-#    # expected_cost, costs_distribution = q_env.simulate_path_costs(start_state, goal_state)
-#    # print(f"Aufgabe (b): Q-Learning - Erwartungswert für die Kosten der kürzesten Pfades von A nach G: {expected_cost}")
-#    print('---------------------------------------------------')
-#
-#    print("Aufgabe (e): Diskontierungsfaktor auf 0.5")
-#    q_env = QLearningEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma=0.5)
-#    rewards_per_episode_qrandom = q_env.q_learning(max_iterations, True)
-#    visuals.print_q(q_env, rewards_per_episode_qrandom)
-#
-#    #expected_cost, costs_distribution = q_env.simulate_path_costs(start_state, goal_state)
-#    #print(f"Aufgabe (b): Q-Learning - Erwartungswert für die Kosten der kürzesten Pfades von A nach G: {expected_cost}")
-#
-#    print('---------------------------------------------------')
-#
-#    print("Aufgabe (f):")
-#    visuals.print_sarsa(q_env, rewards_per_episode_sarsa)
-#
-#    expected_cost, costs_distribution = sarsa_env.simulate_path_costs(start_state, goal_state)
-#    print(f"Aufgabe (b): Sarsa - Erwartungswert für die Kosten der kürzesten Pfades von A nach G: {expected_cost}")
-#
