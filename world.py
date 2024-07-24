@@ -1,5 +1,6 @@
 import argparse
 from visualization import Visuals
+import random
 
 from sarsa import SarsaEnvironment
 from qlearning import QLearningEnvironment
@@ -28,11 +29,12 @@ if __name__ == "__main__":
     #q_env_rand = QLearningEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma)
     q_env = QLearningEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma)
     sarsa_env = SarsaEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma)
-
+    q_env_not_a = QLearningEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma)
     max_iterations = args.max_iterations
 
     # Trainiere den Agenten
-    rewards_per_episode_q = q_env.q_learning(max_iterations, False)
+    rewards_per_episode_q = q_env.q_learning(max_iterations, False, room="A")
+    rewards_per_episode_q_not_a = q_env_not_a.q_learning(max_iterations, False, room="F")
     rewards_per_episode_sarsa = sarsa_env.sarsa(max_iterations)
 
 
@@ -46,22 +48,22 @@ if __name__ == "__main__":
     print("Projektvorschlag 10:")
 
     #Aufgabe (a):
-    visuals_q.print_a(q_env, rewards_per_episode_q)
+    #visuals_q.print_a(q_env, rewards_per_episode_q)
 
     print('---------------------------------------------------')
 
     #Aufgabe (b):
-    visuals_q.print_b(q_env, rewards_per_episode_q)
+    #visuals_q.print_b(q_env, rewards_per_episode_q)
 
     print('---------------------------------------------------')
 
     #Aufgabe (c):
-    visuals_q.print_c(q_env, rewards_per_episode_q)
+    #visuals_q.print_c(q_env, rewards_per_episode_q)
 
     print('---------------------------------------------------')
 
     #Aufgabe (d):
-    visuals_q.print_d(q_env, rewards_per_episode_q)
+    visuals_q.print_d(q_env_not_a, rewards_per_episode_q_not_a)
 
     print('---------------------------------------------------')
 
@@ -73,11 +75,11 @@ if __name__ == "__main__":
     q_env_05 = QLearningEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma=0.5) 
     rewards_per_episode_q05 = q_env_05.q_learning(max_iterations, False)
 
-    visuals_q.print_e(q_env, q_env_01, q_env_05, rewards_per_episode_q, rewards_per_episode_q01, rewards_per_episode_q05)
+    #visuals_q.print_e(q_env, q_env_01, q_env_05, rewards_per_episode_q, rewards_per_episode_q01, rewards_per_episode_q05)
 
     print('---------------------------------------------------')
 
     #Aufgabe (f):
-    visuals_sarsa.print_f(sarsa_env, rewards_per_episode_sarsa)
+    #visuals_sarsa.print_f(sarsa_env, rewards_per_episode_sarsa)
 
     print('---------------------------------------------------')

@@ -19,13 +19,7 @@ class QLearningEnvironment:
         self.starting_room = 0
 
     def choose_action(self, state, episode):
-        #dynamic_epsilon = 1 / (episode)
-        if self.gamma == 0.5:
-            dynamic_epsilon = 1 / (episode/100)
-        elif self.gamma == 0.1:
-            dynamic_epsilon = 1 / (episode/10)
-        else:
-            dynamic_epsilon = 1 / (episode/100)
+        dynamic_epsilon = 1 / (episode/100)
         if random.uniform(0, 1) < dynamic_epsilon:
             return random.choice(self.actions)
         else:
@@ -43,13 +37,15 @@ class QLearningEnvironment:
             best_actions = [action for action, q in zip(self.actions, q_values) if q == max_value]
             # Bei gleichem Q-Wert den Raum mit dem niedrigsten Index wählen
             next_state = len(self.rooms)
+            best_action = None
             if len(best_actions)>1:
                 for action in best_actions:
                     new_room = self.room_indices[transitions[self.rooms[state]][action]]
-                    if next_state > new_room:
+                    if next_state > new_room and new_room != state:
                         next_state = new_room
                         best_action = action
-                return best_action
+                if best_action:
+                    return best_action
             return min(best_actions)
 
     # Simulationsfunktion für die Umgebung basierend auf dem neuen Grundriss
@@ -74,7 +70,7 @@ class QLearningEnvironment:
         return next_state, reward
 
     # Q-Learning Algorithmus
-    def q_learning(self, max_iterations, random_start, convergence_threshold=0.0001, min_episodes=1):
+    def q_learning(self, max_iterations, random_start, convergence_threshold=0.0001, min_episodes=1, room="A"):
         rewards_per_episode = []
         iteration = 0
         converged = False
@@ -82,7 +78,8 @@ class QLearningEnvironment:
 
         while not converged:
             iteration += 1
-            current_state = self.room_indices['A']
+            current_state = self.room_indices[room]
+            self.starting_room = current_state
             total_reward = 0
 
             while current_state != self.room_indices['G']:
@@ -97,7 +94,6 @@ class QLearningEnvironment:
                 # Anzahl der Aktualisierungen erhöhen
                 self.update_counts[current_state, action_index] += 1
                 alpha = 1 / self.update_counts[current_state, action_index]
-
                 # Aktualisiere Q-Wert basierend auf der spezifizierten Lernregel
                 self.Q[current_state, action_index] = (1 - alpha) * self.Q[current_state, action_index] + alpha * td_target
 
@@ -107,7 +103,7 @@ class QLearningEnvironment:
             rewards_per_episode.append(total_reward)
 
             # Konvergenzprüfung nur alle 10 Iterationen
-            if iteration % 10 == 0:
+            if iteration % 5 == 0:
                 q_diff = np.mean(np.abs(self.Q - prev_Q))
                 max_diff = np.max(np.abs(self.Q - prev_Q))
 
@@ -133,7 +129,7 @@ class QLearningEnvironment:
                 current_state = next_state
 
                 # Sicherheitsabfrage, um eine Endlosschleife zu vermeiden
-                if total_cost < -100:  # anpassen, um zu lange Pfade zu vermeiden
+                if total_cost < -1000:  # anpassen, um zu lange Pfade zu vermeiden
                     break
 
             costs.append(total_cost)
