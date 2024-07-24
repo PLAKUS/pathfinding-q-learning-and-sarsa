@@ -5,9 +5,9 @@ from sarsa import SarsaEnvironment
 from qlearning import QLearningEnvironment
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Trainiere einen Agenten mit Q-Lernen/Sarsa in einer simulierten Umgebung.')
+    parser = argparse.ArgumentParser(description='Trainiere einen Agenten mit Sarsa in einer simulierten Umgebung.')
     parser.add_argument('--gamma', type=float, default=0.9, help='Diskontierungsfaktor für zukünftige Belohnungen.')
-    parser.add_argument('--num_iterations', type=int, default=10000, help='Anzahl der Episoden.')
+    parser.add_argument('--max_iterations', type=int, default=10000, help='Anzahl der Episoden für das Sarsa.')
     parser.add_argument('--rooms', type=str, default=['A', 'B', 'C', 'D', 'E', 'F', 'G'], help='Räume.')
     parser.add_argument('--actions', type=str, default=['left', 'right', 'up', 'down'], help='Aktionen.')
     parser.add_argument('--transition_prob', type=float, default=0.9, help='Übergangswahrscheinlichkeit.')
@@ -22,18 +22,14 @@ if __name__ == "__main__":
     stay_prob = args.stay_prob
     reward_step = args.reward_step
     gamma = args.gamma
-    max_iterations = args.num_iterations
-    
+
     # Initialisiere Umgebungen
-    #sarsa_env = SarsaEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma)
-    #q_env_rand = QLearningEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma)
-    q_env = QLearningEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma)
     #sarsa_env = SarsaEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma)
     #q_env_rand = QLearningEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma)
     q_env = QLearningEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma)
     sarsa_env = SarsaEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma)
 
-    num_iterations = args.num_iterations
+    max_iterations = args.max_iterations
 
     # Trainiere den Agenten
 #   rewards_per_episode_sarsa = sarsa_env.sarsa(max_iterations)
@@ -42,8 +38,6 @@ if __name__ == "__main__":
     rewards_per_episode_sarsa = sarsa_env.sarsa(max_iterations)
 
     # Berechne die Kosten des kürzesten Pfades von A nach G
-    #start_state = sarsa_env.room_indices['A']
-    #goal_state = sarsa_env.room_indices['G']
     #start_state = sarsa_env.room_indices['A']
     #goal_state = sarsa_env.room_indices['G']
 

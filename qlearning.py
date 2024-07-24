@@ -1,6 +1,6 @@
+
 import numpy as np
 import random
-
 
 class QLearningEnvironment:
     def __init__(self, rooms, actions, transition_prob, stay_prob, reward_step, gamma):
@@ -14,19 +14,11 @@ class QLearningEnvironment:
         self.stay_prob = stay_prob
         self.reward_step = reward_step
         self.gamma = gamma
-        self.Q = np.zeros((self.num_rooms, self.num_actions))  # Q-Tabelle
+        self.Q = np.zeros((self.num_rooms, self.num_actions)) # Q-Tabelle
         self.update_counts = np.zeros((self.num_rooms, self.num_actions))  # Update-Count-Tabelle
-        self.starting_room = 0
         self.starting_room = 0
 
     def choose_action(self, state, episode):
-        #dynamic_epsilon = 1 / (episode)
-        if self.gamma == 0.5:
-            dynamic_epsilon = 1 / (episode/100)
-        elif self.gamma == 0.1:
-            dynamic_epsilon = 1 / (episode/10)
-        else:
-            dynamic_epsilon = 1 / (episode/100)
         #dynamic_epsilon = 1 / (episode)
         if self.gamma == 0.5:
             dynamic_epsilon = 1 / (episode/100)
@@ -46,27 +38,9 @@ class QLearningEnvironment:
                 'F': {'left': 'D', 'right': 'F', 'up': 'F', 'down': 'F'},
                 'G': {'left': 'G', 'right': 'G', 'up': 'G', 'down': 'G'}
             }
-            transitions = {
-                'A': {'left': 'A', 'right': 'C', 'up': 'B', 'down': 'A'},
-                'B': {'left': 'B', 'right': 'D', 'up': 'B', 'down': 'A'},
-                'C': {'left': 'A', 'right': 'E', 'up': 'D', 'down': 'C'},
-                'D': {'left': 'B', 'right': 'F', 'up': 'D', 'down': 'C'},
-                'E': {'left': 'C', 'right': 'G', 'up': 'E', 'down': 'E'},
-                'F': {'left': 'D', 'right': 'F', 'up': 'F', 'down': 'F'},
-                'G': {'left': 'G', 'right': 'G', 'up': 'G', 'down': 'G'}
-            }
             q_values = self.Q[state]
             max_value = np.max(q_values)
             best_actions = [action for action, q in zip(self.actions, q_values) if q == max_value]
-            # Bei gleichem Q-Wert den Raum mit dem niedrigsten Index wählen
-            next_state = len(self.rooms)
-            if len(best_actions)>1:
-                for action in best_actions:
-                    new_room = self.room_indices[transitions[self.rooms[state]][action]]
-                    if next_state > new_room:
-                        next_state = new_room
-                        best_action = action
-                return best_action
             # Bei gleichem Q-Wert den Raum mit dem niedrigsten Index wählen
             next_state = len(self.rooms)
             if len(best_actions)>1:
@@ -100,7 +74,7 @@ class QLearningEnvironment:
         return next_state, reward
 
     # Q-Learning Algorithmus
-    def q_learning(self, num_iterations, random_start):
+    def q_learning(self, max_iterations, random_start, convergence_threshold=0.0001, min_episodes=1):
         rewards_per_episode = []
         iteration = 0
         converged = False
@@ -112,7 +86,7 @@ class QLearningEnvironment:
             total_reward = 0
 
             while current_state != self.room_indices['G']:
-                action = self.choose_action(current_state, x)
+                action = self.choose_action(current_state, iteration)
                 action_index = self.action_indices[action]
                 next_state, reward = self.get_next_state_and_reward(current_state, action)
 
@@ -131,6 +105,16 @@ class QLearningEnvironment:
                 total_reward += reward
 
             rewards_per_episode.append(total_reward)
+
+            # Konvergenzprüfung nur alle 10 Iterationen
+            if iteration % 10 == 0:
+                q_diff = np.mean(np.abs(self.Q - prev_Q))
+                max_diff = np.max(np.abs(self.Q - prev_Q))
+
+                if q_diff < convergence_threshold and max_diff < convergence_threshold and iteration > min_episodes:
+                    converged = True
+
+                prev_Q = np.copy(self.Q)
 
         return rewards_per_episode
 
