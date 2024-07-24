@@ -92,16 +92,15 @@ class SarsaEnvironment:
         converged = False
         prev_Q = np.copy(self.Q)
         while not converged:
-        while not converged:
             iteration += 1
             current_state = random.choice(range(self.num_rooms - 1))
-            action = self.choose_action(current_state, x)
+            action = self.choose_action(current_state, iteration)
             total_reward = 0
 
             while current_state != self.room_indices['G']:
                 action_index = self.action_indices[action]
                 next_state, reward = self.get_next_state_and_reward(current_state, action)
-                next_action = self.choose_action(next_state, x)
+                next_action = self.choose_action(next_state, iteration)
                 next_action_index = self.action_indices[next_action]
 
                 # Q-Wert Berechnung

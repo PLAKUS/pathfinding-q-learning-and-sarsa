@@ -22,7 +22,8 @@ if __name__ == "__main__":
     stay_prob = args.stay_prob
     reward_step = args.reward_step
     gamma = args.gamma
-
+    max_iterations = args.num_iterations
+    
     # Initialisiere Umgebungen
     #sarsa_env = SarsaEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma)
     #q_env_rand = QLearningEnvironment(rooms, actions, transition_prob, stay_prob, reward_step, gamma)
