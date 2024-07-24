@@ -260,7 +260,7 @@ class Visuals:
     def  print_d(self, env, rewards_per_episode):
         print("\n")
         print("Aufgabe (D):")
-        start_state = random.choice(range(1,env.num_rooms - 1))  # Zufälliger Startzustand -2 damit G nicht als Startzustand kommt
+        start_state = random.choice(range(1,env.num_rooms - 1))  # Zufälliger Startzustand -1 damit G nicht als Startzustand kommt
         print(f"Q-Learning - Erwartungswert für die Kosten des kürzesten Pfades von {env.rooms[start_state]} nach {env.rooms[self.goal_state]}: {self.expected_costs[start_state]}")
         print("\n")
 ###############################################################################################################
