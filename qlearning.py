@@ -17,9 +17,10 @@ class QLearningEnvironment:
         self.Q = np.zeros((self.num_rooms, self.num_actions)) # Q-Tabelle
         self.update_counts = np.zeros((self.num_rooms, self.num_actions))  # Update-Count-Tabelle
         self.starting_room = 0
-
+        self.prev = 0
     def choose_action(self, state, episode):
-        dynamic_epsilon = 1 / (episode/100)
+        dynamic_epsilon = 1/(episode/100)
+
         if random.uniform(0, 1) < dynamic_epsilon:
             return random.choice(self.actions)
         else:
@@ -70,7 +71,7 @@ class QLearningEnvironment:
         return next_state, reward
 
     # Q-Learning Algorithmus
-    def q_learning(self, max_iterations, random_start, convergence_threshold=0.0001, min_episodes=1, room="A"):
+    def q_learning(self, convergence_threshold=0.0001, min_episodes=1, room="A"):
         rewards_per_episode = []
         iteration = 0
         converged = False
@@ -102,8 +103,8 @@ class QLearningEnvironment:
 
             rewards_per_episode.append(total_reward)
 
-            # Konvergenzprüfung nur alle 10 Iterationen
-            if iteration % 5 == 0:
+            # Konvergenzprüfung
+            if iteration % 1 == 0:
                 q_diff = np.mean(np.abs(self.Q - prev_Q))
                 max_diff = np.max(np.abs(self.Q - prev_Q))
 

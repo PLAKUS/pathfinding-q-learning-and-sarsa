@@ -1,7 +1,5 @@
 import numpy as np
 import random
-import matplotlib.pyplot as plt
-import argparse
 
 class SarsaEnvironment:
     def __init__(self, rooms, actions, transition_prob, stay_prob, reward_step, gamma):
@@ -15,11 +13,13 @@ class SarsaEnvironment:
         self.stay_prob = stay_prob
         self.reward_step = reward_step
         self.gamma = gamma
-        self.Q = np.zeros((self.num_rooms, self.num_actions))
-        self.update_counts = np.zeros((self.num_rooms, self.num_actions))  # Hinzufügen der Update-Count-Tabelle
+        self.Q = np.zeros((self.num_rooms, self.num_actions)) # Q-Tabelle
+        self.update_counts = np.zeros((self.num_rooms, self.num_actions))  # Update-Count-Tabelle
+        self.starting_room = 0
 
     def choose_action(self, state, episode):
-        dynamic_epsilon = 1 / (episode/100)  # +1 um Division durch 0 zu vermeiden
+        dynamic_epsilon = 1/(episode/100)
+        
         if random.uniform(0, 1) < dynamic_epsilon:
             return random.choice(self.actions)
         else:
@@ -37,13 +37,15 @@ class SarsaEnvironment:
             best_actions = [action for action, q in zip(self.actions, q_values) if q == max_value]
             # Bei gleichem Q-Wert den Raum mit dem niedrigsten Index wählen
             next_state = len(self.rooms)
+            best_action = None
             if len(best_actions)>1:
                 for action in best_actions:
                     new_room = self.room_indices[transitions[self.rooms[state]][action]]
-                    if next_state > new_room:
+                    if next_state > new_room and new_room != state:
                         next_state = new_room
                         best_action = action
-                return best_action
+                if best_action:
+                    return best_action
             return min(best_actions)
 
     # Simulationsfunktion für die Umgebung basierend auf dem neuen Grundriss
@@ -51,10 +53,10 @@ class SarsaEnvironment:
         # Definiere die Transition basierend auf dem jetzigen Zustand und Aktion
         transitions = {
             'A': {'left': 'A', 'right': 'C', 'up': 'B', 'down': 'A'},
-            'B': {'left': 'B', 'right': 'B', 'up': 'B', 'down': 'A'},
+            'B': {'left': 'B', 'right': 'D', 'up': 'B', 'down': 'A'},
             'C': {'left': 'A', 'right': 'E', 'up': 'D', 'down': 'C'},
             'D': {'left': 'B', 'right': 'F', 'up': 'D', 'down': 'C'},
-            'E': {'left': 'C', 'right': 'G', 'up': 'F', 'down': 'E'},
+            'E': {'left': 'C', 'right': 'G', 'up': 'E', 'down': 'E'},
             'F': {'left': 'D', 'right': 'F', 'up': 'F', 'down': 'F'},
             'G': {'left': 'G', 'right': 'G', 'up': 'G', 'down': 'G'}
         }
@@ -68,14 +70,15 @@ class SarsaEnvironment:
         return next_state, reward
 
     # Implementierung des Sarsa-Algorithmus
-    def sarsa(self, max_iterations, convergence_threshold=0.0001, min_episodes=1):
+    def sarsa(self, convergence_threshold=0.0001, min_episodes=1):
         rewards_per_episode = []
         iteration = 0
         converged = False
         prev_Q = np.copy(self.Q)
+
         while not converged:
             iteration += 1
-            current_state = random.choice(range(self.num_rooms - 1))
+            current_state = self.room_indices["A"]
             action = self.choose_action(current_state, iteration)
             total_reward = 0
 
@@ -93,8 +96,7 @@ class SarsaEnvironment:
                 alpha = 1 / self.update_counts[current_state, action_index]
 
                 # Aktualisiere Q-Wert basierend auf der spezifizierten Lernregel
-                self.Q[current_state, action_index] = (1 - alpha) * self.Q[
-                    current_state, action_index] + alpha * target
+                self.Q[current_state, action_index] = (1 - alpha) * self.Q[current_state, action_index] + alpha * target
 
                 current_state = next_state
                 action = next_action
@@ -102,8 +104,8 @@ class SarsaEnvironment:
 
             rewards_per_episode.append(total_reward)
 
-            # Ist es konvergiert?
-            if iteration % 10 == 0:  # Konvergenzprüfung nur alle 10 Iterationen
+            # Konvergenzprüfung
+            if iteration % 1 == 0:  
                 q_diff = np.mean(np.abs(self.Q - prev_Q))
                 max_diff = np.max(np.abs(self.Q - prev_Q))
 
@@ -122,18 +124,18 @@ class SarsaEnvironment:
             current_state = start_state
             total_cost = 0
             while current_state != goal_state:
-                action_index = np.argmax(self.Q[current_state])  # Best action
+                action_index = np.argmax(self.Q[current_state])
                 action = self.actions[action_index]
                 next_state, reward = self.get_next_state_and_reward(current_state, action)
                 total_cost += reward
                 current_state = next_state
 
                 # Sicherheitsabfrage, um eine Endlosschleife zu vermeiden
-                if total_cost < -1000:  # anpassen, um zu lange Pfade zu vermeiden
+                if total_cost < -1000:
                     break
 
             costs.append(total_cost)
 
         expected_cost = np.mean(costs)
-        return expected_cost, costs
+        return abs(expected_cost), costs
 
