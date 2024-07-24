@@ -19,6 +19,7 @@ class SarsaEnvironment:
 
     def choose_action(self, state, episode):
         dynamic_epsilon = 1 / (episode/100)  # +1 um Division durch 0 zu vermeiden
+        dynamic_epsilon = 1 / (episode/100)  # +1 um Division durch 0 zu vermeiden
         if random.uniform(0, 1) < dynamic_epsilon:
             return random.choice(self.actions)
         else:
@@ -31,9 +32,27 @@ class SarsaEnvironment:
                 'F': {'left': 'D', 'right': 'F', 'up': 'F', 'down': 'F'},
                 'G': {'left': 'G', 'right': 'G', 'up': 'G', 'down': 'G'}
             }
+            transitions = {
+                'A': {'left': 'A', 'right': 'C', 'up': 'B', 'down': 'A'},
+                'B': {'left': 'B', 'right': 'D', 'up': 'B', 'down': 'A'},
+                'C': {'left': 'A', 'right': 'E', 'up': 'D', 'down': 'C'},
+                'D': {'left': 'B', 'right': 'F', 'up': 'D', 'down': 'C'},
+                'E': {'left': 'C', 'right': 'G', 'up': 'E', 'down': 'E'},
+                'F': {'left': 'D', 'right': 'F', 'up': 'F', 'down': 'F'},
+                'G': {'left': 'G', 'right': 'G', 'up': 'G', 'down': 'G'}
+            }
             q_values = self.Q[state]
             max_value = np.max(q_values)
             best_actions = [action for action, q in zip(self.actions, q_values) if q == max_value]
+            # Bei gleichem Q-Wert den Raum mit dem niedrigsten Index wählen
+            next_state = len(self.rooms)
+            if len(best_actions)>1:
+                for action in best_actions:
+                    new_room = self.room_indices[transitions[self.rooms[state]][action]]
+                    if next_state > new_room:
+                        next_state = new_room
+                        best_action = action
+                return best_action
             # Bei gleichem Q-Wert den Raum mit dem niedrigsten Index wählen
             next_state = len(self.rooms)
             if len(best_actions)>1:
@@ -68,11 +87,11 @@ class SarsaEnvironment:
 
     # Implementierung des Sarsa-Algorithmus
     def sarsa(self, max_iterations, convergence_threshold=0.0001, min_episodes=1):
-    def sarsa(self, num_iterations):
         rewards_per_episode = []
         iteration = 0
         converged = False
         prev_Q = np.copy(self.Q)
+        while not converged:
         while not converged:
             iteration += 1
             current_state = random.choice(range(self.num_rooms - 1))
